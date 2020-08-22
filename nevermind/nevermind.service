@@ -1,0 +1,21 @@
+# nevermind.service
+# (Ubuntu Service Script for Nevermind)
+
+# To activate this file:
+# [1] sudo cp nevermind.service /etc/systemd/system/
+# [2] Follow the instructions written in nevermind_backend_nginx.conf
+
+[Unit]
+Description=Nevermind uWSGI
+
+[Service]
+ExecStart=/usr/local/bin/uwsgi --ini /home/ubuntu/nevermind-backend/nevermind/nevermind_uwsgi.ini
+Restart=on-failure
+KillSignal=SIGQUIT
+Type=notify
+NotifyAccess=all
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target
+
