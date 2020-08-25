@@ -24,7 +24,8 @@ BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 SECRET_KEY = config.DjangoConfig['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config.DjangoConfig['DEBUG']
+# DEBUG = config.DjangoConfig['DEBUG']
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -39,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'main',
+    'user',
 ]
 
 MIDDLEWARE = [
@@ -109,13 +111,13 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Seoul'
 
 USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
