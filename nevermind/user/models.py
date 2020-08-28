@@ -2,7 +2,7 @@ from django.db import models
 
 class User(models.Model):
   email = models.EmailField(max_length = 50, primary_key = True)
-  pwd = models.CharField(max_length = 20)
+  pwd = models.CharField(max_length = 80)
   username = models.CharField(max_length = 50)
   cellphone = models.CharField(max_length = 20)
   created_at = models.DateTimeField()

@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse, HttpResponse
 from django.utils import timezone
+from argon2 import PasswordHasher
 from .models import User, Session
 import json, random
 
@@ -23,11 +24,23 @@ def login(req):
   if req.method == 'POST':
     try:
       user = User.objects.get(
-        email = reqobj['email'],
-        pwd = reqobj['pwd']
+        email = reqobj['email']
       )
+
+      ph = PasswordHasher()
+
+      if ph.verify(user.pwd.encode(), reqobj['pwd'].encode()) == False:
+        resobj['is_login'] = False
+        resobj['error_msg'] = 'Wrong Password'
+        JsonResponse(resobj)
     except User.DoesNotExist:
       user = None
+    except exceptions.VerifyMismatchError:
+      return HttpResponse(status = 401)
+    except exceptions.VerificationError:
+      return HttpResponse(status = 401)
+    except KeyError:
+      return HttpResponse(status = 400)
 
     if user is not None:
       resobj['email'] = user.email
@@ -64,10 +77,12 @@ def login(req):
     else: # User None
       resobj['is_login'] = False
       resobj['error_msg'] = 'User None'
+      JsonResponse(resobj)
 
   else: # POST
     resobj['is_login'] = False
     resobj['error_msg'] = 'Not POST method'
+    JsonResponse(resobj)
 
   response = JsonResponse(resobj)
   response.set_cookie('session_id', session_id)
@@ -116,7 +131,10 @@ def register(req):
   if req.method == 'POST':
     user = User()
     user.email = reqobj['email']
-    user.pwd = reqobj['pwd']
+
+    ph = PasswordHasher()
+    user.pwd = ph.hash(reqobj['pwd'])
+
     user.username = reqobj['username']
     user.cellphone = reqobj['cellphone']
     user.created_at = timezone.now()
