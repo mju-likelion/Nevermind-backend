@@ -8,6 +8,27 @@ import json, random
 
 
 @csrf_exempt
+def issession(req):
+  reqobj = {
+    'session_id': req.COOKIES.get('session_id'),
+  }
+  resobj = {
+    'is_session': False,
+    'error_msg': None,
+  }
+  if req.method == 'POST':
+    try:
+      Session.objects.get(
+        session_id = reqobj['session_id']
+      )
+      resobj['is_session'] = True
+    except Session.DoesNotExist:
+      resobj['error_msg'] = 'No session exists'
+  else:
+    resobj['error_msg'] = 'Not POST method'
+  return JsonResponse(resobj)
+
+@csrf_exempt
 def login(req):
   reqobj = {
     'email': req.POST.get('email'),
@@ -169,6 +190,8 @@ def unregister(req):
       except User.DoesNotExist:
         user = None
       if user is not None:
+        resobj['email'] = user.email
+        resobj['username'] = user.username
         session.delete()
         user.delete()
       else: # User None
