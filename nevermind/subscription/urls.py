@@ -6,5 +6,6 @@ urlpatterns = [
 	path('get', views.get, name = 'get'),
 	path('update', views.update, name = 'update'),
 	path('delete', views.delete, name = 'delete'),
+  path('applist', views.applist, name = 'applist'),
 ]
 

@@ -5,7 +5,7 @@ import json
 
 def main(req):
   users = User.objects
-  return render(req, 'main.html', { 'users': users })
+  return render(req, 'main.html')
 
 def signup(req):
   user = User()
