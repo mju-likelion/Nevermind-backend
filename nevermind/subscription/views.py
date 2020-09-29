@@ -2,8 +2,9 @@ from django.shortcuts import render
 from django.http import JsonResponse
 import json
 import requests
+from project.config import APIConfig
 
-APP_LIST_URL = 'https://rss.itunes.apple.com/api/v1/kr/ios-apps/top-free/all/100/explicit.json'
+APP_LIST_URL = APIConfig['APP_LIST_URL']
 
 
 def add(req):
