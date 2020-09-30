@@ -5,7 +5,7 @@ from django.utils import timezone
 from argon2 import PasswordHasher
 from urllib.parse import quote, unquote
 from .models import User, Session
-import json, random
+import json, random, string
 
 
 @csrf_exempt
@@ -91,11 +91,10 @@ def login(req):
       session = Session()
       session.session_id = ''.join(
         random.choice(
-          '0123456789'
-        + 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-        + 'abcdefghijklmnopqrstuvwxyz'
-        + '^%$#@!.,-=+()*&~/<>|;:[]_?'
-        ) for i in range(50)
+          string.printable
+            .replace(string.whitespace, '')
+            .replace('`', '')
+        ) for i in range(128)
       )
       session.email = user
       session.ip_address = req.META['REMOTE_ADDR']
