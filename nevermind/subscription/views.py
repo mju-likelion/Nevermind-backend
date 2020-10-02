@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.utils import timezone
+from django.core import serializers
 from .models import *
 from user.models import *
 from urllib.parse import quote, unquote
@@ -42,11 +43,11 @@ def add(req):
 
   try:
     app = Application.objects.get(
-      app_name = reqobj['app_name']
+      app_name = quote(reqobj['app_name'])
     )
   except Application.DoesNotExist:
     app = Application()
-    app.app_name = reqobj['app_name']
+    app.app_name = quote(reqobj['app_name'])
     app.app_img_url = reqobj['app_img_url']
     app.save()
 
@@ -102,11 +103,34 @@ def add(req):
   return JsonResponse(resobj)
 
 
+@csrf_exempt
 def get(req):
-  #
-  return JsonResponse({})
+  reqobj = {
+    'session_id': req.POST.get('session_id'),
+  }
+  resobj = {
+    'is_get': False,
+    'error_msg': None,
+    'subscriptions': [],
+  }
+
+  try:
+    session = Session.objects.get(
+      session_id = reqobj['session_id']
+    )
+  except Session.DoesNotExist:
+    reqobj['error_msg'] = 'Session does not exist'
+    return JsonResponse(resobj)
+  
+  qs_subscriptions = Subscription.objects.filter(
+    email = session.email
+  )
+  resobj['subscriptions'] = json.loads(serializers.serialize('json', qs_subscriptions))
+
+  return JsonResponse(resobj)
 
 
+@csrf_exempt
 def update(req):
   #
   return JsonResponse({})
