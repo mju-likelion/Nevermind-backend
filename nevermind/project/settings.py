@@ -100,6 +100,16 @@ CORS_ORIGIN_WHITELIST = [
 """
 
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+MAILER_EMAIL_BACKEND = EMAIL_BACKEND
+EMAIL_HOST = config.EmailAuthConfig['EMAIL_HOST']
+EMAIL_HOST_PASSWORD = config.EmailAuthConfig['EMAIL_HOST_PASSWORD']
+EMAIL_HOST_USER = config.EmailAuthConfig['EMAIL_HOST_USER']
+EMAIL_PORT = config.EmailAuthConfig['EMAIL_PORT']
+EMAIL_USE_SSL = True
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
 
