@@ -10,10 +10,10 @@ class Application(models.Model):
     default = uuid.uuid4, 
     editable = False
   )
-  app_name = models.CharField(max_length = 64)
+  app_name = models.CharField(max_length = 128)
   app_img_url = models.CharField(max_length = 512)
   def __str__(self):
-    return self.app_id
+    return str(self.app_id)
 
 class Subscription(models.Model):
   class SubscriptionTypes(models.TextChoices):
@@ -32,7 +32,7 @@ class Subscription(models.Model):
     db_column = "app_id"
   )
   sub_type = models.CharField(
-    max_length = 1, 
+    max_length = 2, 
     choices = SubscriptionTypes.choices,
     default = SubscriptionTypes.MONTH
   )
@@ -43,7 +43,7 @@ class Subscription(models.Model):
   class Meta:
     unique_together = (("email","app_id"),)
   def __str__(self):
-    return self.appId + "(" + self.email + ")"
+    return str(self.app_id) + "(" + self.email + ")"
   
 class Subscription_Bill(models.Model):
   email = models.ForeignKey(
@@ -62,4 +62,4 @@ class Subscription_Bill(models.Model):
   class Meta:
     unique_together = (("email","app_id"),)
   def __str__(self):
-    return self.appId + "(" + self.email + ")"
+    return str(self.app_id) + "(" + self.email + ")"
