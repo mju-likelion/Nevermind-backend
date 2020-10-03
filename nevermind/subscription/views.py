@@ -133,6 +133,7 @@ def get(req):
         email = session.email, app_id = sub_info.app_id
       )
       sub_info_json = {
+        'app_id': app.app_id,
         'app_name': unquote(app.app_name),
         'app_img_url': app.app_img_url,
         'sub_type': sub_info.sub_type,
