@@ -193,10 +193,10 @@ def emailauth(req):
       emailauthinfo = EmailAuthInfo.objects.get(
         authnum = reqobj['authnum']
       )
-      emailauthinfo.delete()
     except EmailAuthInfo.DoesNotExist:
       resobj['error_msg'] = 'Invalid auth number'
       return JsonResponse(resobj)
+    emailauthinfo.delete()
   else:
     resobj['error_msg'] = 'Only parameter "email" & "authnum" are allowed'
     return JsonResponse(resobj)
