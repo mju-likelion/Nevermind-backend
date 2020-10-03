@@ -125,11 +125,13 @@ def get(req):
   qs_subscriptions = Subscription.objects.filter(
     email = session.email
   )
-  #resobj['subscriptions'] = json.loads(serializers.serialize('json', qs_subscriptions))
 
   for sub_info in qs_subscriptions:
     try:
       app = Application.objects.get(app_id = sub_info.app_id.app_id)
+      subscription_bill = Subscription_Bill.objects.get(
+        email = session.email, app_id = sub_info.app_id
+      )
       sub_info_json = {
         'app_name': unquote(app.app_name),
         'app_img_url': app.app_img_url,
@@ -137,6 +139,9 @@ def get(req):
         'bill': sub_info.bill,
         'startdate': sub_info.startdate,
         'enddate': sub_info.enddate,
+        'week_bill': subscription_bill.week_bill,
+        'month_bill': subscription_bill.month_bill,
+        'year_bill': subscription_bill.year_bill,
       }
       resobj['subscriptions'].append(sub_info_json)
     except Application.DoesNotExist:
