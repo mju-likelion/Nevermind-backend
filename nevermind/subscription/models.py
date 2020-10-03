@@ -10,7 +10,7 @@ class Application(models.Model):
     default = uuid.uuid4, 
     editable = False
   )
-  app_name = models.CharField(max_length = 256)
+  app_name = models.CharField(max_length = 512)
   app_img_url = models.CharField(max_length = 512)
   def __str__(self):
     return str(self.app_id)
