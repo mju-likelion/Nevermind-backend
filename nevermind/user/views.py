@@ -2,10 +2,24 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse, HttpResponse
 from django.utils import timezone
+from django.core.mail import send_mail
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
+from django.conf import settings
 from argon2 import PasswordHasher
 from urllib.parse import quote, unquote
-from .models import User, Session
+from .models import *
 import json, random, string
+
+
+def get_random_str(rstr_len, is_alphanumeric):
+  if is_alphanumeric:
+    strprintable = string.ascii_letters + string.digits
+  else:
+    strprintable = string.printable.replace(string.whitespace, '').replace('`', '')
+  return ''.join(
+    random.choice(strprintable) for i in range(rstr_len)
+  )
 
 
 @csrf_exempt
@@ -55,10 +69,15 @@ def login(req):
       return JsonResponse(resobj)
   if req.method == 'POST':
     try:
+      validate_email(reqobj['email'])
       user = User.objects.get(
         email = reqobj['email']
       )
       user_pw = user.pwd
+    except ValidationError:
+      resobj['is_login'] = False
+      resobj['error_msg'] = 'Invalid email'
+      return JsonResponse(resobj)
     except User.DoesNotExist:
       resobj['is_login'] = False
       resobj['error_msg'] = 'User None'
@@ -89,13 +108,7 @@ def login(req):
 
     if session is None:
       session = Session()
-      session.session_id = ''.join(
-        random.choice(
-          string.printable
-            .replace(string.whitespace, '')
-            .replace('`', '')
-        ) for i in range(128)
-      )
+      session.session_id = get_random_str(128, False)
       session.email = user
       session.ip_address = req.META['REMOTE_ADDR']
       session.save()
@@ -145,6 +158,54 @@ def logout(req):
 
 
 @csrf_exempt
+def emailauth(req):
+  reqobj = {
+    'email': req.POST.get('email'),
+    'authnum': req.POST.get('authnum'),
+  }
+  resobj = {
+    'is_emailauth': False,
+    'error_msg': None,
+  }
+
+  if reqobj['email'] is not None:
+    try:
+      validate_email(reqobj['email'])
+    except ValidationError:
+      resobj['error_msg'] = 'Invalid email'
+      return JsonResponse(resobj)
+    
+    authnum = get_random_str(8, True)
+
+    emailauthinfo = EmailAuthInfo()
+    emailauthinfo.email = reqobj['email']
+    emailauthinfo.authnum = authnum
+    emailauthinfo.save()
+
+    send_mail(
+      'Nevermind App Email Authentication',
+      str(authnum),
+      settings.EMAIL_HOST_USER,
+      [reqobj['email']]
+    )
+  elif reqobj['authnum'] is not None:
+    try:
+      emailauthinfo = EmailAuthInfo.objects.get(
+        authnum = reqobj['authnum']
+      )
+      emailauthinfo.delete()
+    except EmailAuthInfo.DoesNotExist:
+      resobj['error_msg'] = 'Invalid auth number'
+      return JsonResponse(resobj)
+  else:
+    resobj['error_msg'] = 'Only parameter "email" & "authnum" are allowed'
+    return JsonResponse(resobj)
+
+  resobj['is_emailauth'] = True
+  return JsonResponse(resobj)
+
+
+@csrf_exempt
 def register(req):
   reqobj = {
     'email': req.POST.get('email'),
@@ -162,7 +223,15 @@ def register(req):
       resobj['is_register'] = False
       resobj['error_msg'] = 'Must fill out all inputs in the form'
       return JsonResponse(resobj)
+  
   if req.method == 'POST':
+    try:
+      validate_email(reqobj['email'])
+    except ValidationError:
+      resobj['is_login'] = False
+      resobj['error_msg'] = 'Invalid email'
+      return JsonResponse(resobj)
+
     user = User()
     user.email = reqobj['email']
 
