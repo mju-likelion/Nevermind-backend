@@ -161,8 +161,44 @@ def update(req):
 
 @csrf_exempt
 def delete(req):
-  #
-  return JsonResponse({})
+  reqobj = {
+    'session_id': req.POST.get('session_id'),
+    'app_id': req.POST.get('app_id'),
+  }
+  resobj = {
+    'is_delete': False,
+    'error_msg': None,
+  }
+
+  try:
+    session = Session.objects.get(
+      session_id = reqobj['session_id']
+    )
+    app = Application.objects.get(
+      app_id = reqobj['app_id']
+    )
+    subscription = Subscription.objects.get(
+      email = session.email,
+      app_id = app.app_id
+    )
+    subscription_bill = Subscription_Bill.objects.get(
+      email = session.email,
+      app_id = app.app_id
+    )
+
+    # TODO Check constraint for email attribute
+    app.delete()
+    subscription.delete()
+    subscription_bill.delete()
+  except Session.DoesNotExist:
+    reqobj['error_msg'] = 'Session does not exist'
+    return JsonResponse(resobj)
+  except Application.DoesNotExist:
+    resobj['error_msg'] = 'The application is not subscribed'
+    return JsonResponse(resobj)
+
+  resobj['is_delete'] = True
+  return JsonResponse(resobj)
 
 
 def applist(req):
