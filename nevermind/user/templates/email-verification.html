@@ -1,7 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Email Verification | Nevermind</title>
     <style>
@@ -10,40 +10,57 @@
         src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff")
           format("woff");
       }
-      body {
-        position: relative;
-        font-family: GmarketSansBold, sans-serif;
-      }
-      .container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
-      .etc {
-        margin-top: 3rem;
-        font-size: small;
-        color: #555555;
-        border-top: 1.5px solid #555555;
-      }
     </style>
   </head>
-  <body>
-    <div class="container">
-      <h1>Nevermind 이메일 인증</h1>
-      <p>이메일 인증번호 입력란에 다음과 같이 입력해주시기 바랍니다:</p>
-      <h2>{{ authnum }}</h2>
-      <ul class="etc">
-        <li>
-          <p>본 메일은 Nevermind 회원가입 이메일 인증을 위해 발송되었습니다.</p>
-        </li>
-        <li><p>이 이메일 주소로 답장을 보내지 마십시오.</p></li>
-        <li>
-          <p>
-            만일 Nevermind 사이트에서 이메일 인증을 시도하지 않으신 경우
-            무시하시기 바랍니다.
-          </p>
-        </li>
-      </ul>
-    </div>
+  <body style="margin: 0; padding: 0; font-family: sans-serif">
+    <table
+      align="center"
+      border="0"
+      cellpadding="1"
+      cellspacing="0"
+      width="80%"
+      style="border-collapse: collapse"
+    >
+      <tr>
+        <th bgcolor="#263d66" style="color: #ffffff">
+          <h1>Nevermind<br />이메일 인증</h1>
+        </th>
+      </tr>
+      <tr>
+        <td align="center">
+          <p>이메일 인증번호 입력란에 다음과 같이 입력해주시기 바랍니다:</p>
+        </td>
+      </tr>
+      <tr>
+        <td align="center"><h2>{{ authnum }}</h2></td>
+      </tr>
+      <tr>
+        <td><br /><br /><br /></td>
+      </tr>
+      <tr>
+        <td><hr width="80%" color="#555555" /></td>
+      </tr>
+      <tr>
+        <td align="center">
+          <table style="color: #555555">
+            <tr>
+              <td>
+                - 본 메일은 Nevermind 회원가입 이메일 인증을 위해
+                발송되었습니다.
+              </td>
+            </tr>
+            <tr>
+              <td>- 이 이메일 주소로 답장을 보내지 마십시오.</td>
+            </tr>
+            <tr>
+              <td>
+                - 만일 Nevermind 사이트에서 이메일 인증을 시도하지 않으신 경우
+                무시하시기 바랍니다.
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
   </body>
 </html>

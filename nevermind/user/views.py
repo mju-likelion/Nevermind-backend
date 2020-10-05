@@ -5,6 +5,8 @@ from django.utils import timezone
 from django.core.mail import send_mail
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 from django.conf import settings
 from argon2 import PasswordHasher
 from urllib.parse import quote, unquote
@@ -182,11 +184,21 @@ def emailauth(req):
     emailauthinfo.authnum = authnum
     emailauthinfo.save()
 
+    subject = 'Nevermind 이메일 인증'
+    html_msg = render_to_string(
+      'email-verification.html', 
+      { 'authnum': authnum }
+    )
+    plain_msg = strip_tags(html_msg)
+    email_from = settings.EMAIL_HOST_USER
+    email_to = [reqobj['email']]
+
     send_mail(
-      'Nevermind App Email Authentication',
-      str(authnum),
-      settings.EMAIL_HOST_USER,
-      [reqobj['email']]
+      subject, 
+      plain_msg, 
+      email_from, 
+      email_to, 
+      html_message = html_msg
     )
   elif reqobj['authnum'] is not None:
     try:
