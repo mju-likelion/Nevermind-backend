@@ -43,7 +43,7 @@ class Subscription(models.Model):
   class Meta:
     unique_together = (("email","app_id"),)
   def __str__(self):
-    return str(self.app_id) + "(" + self.email + ")"
+    return str(self.app_id) + "(" + str(self.email) + ")"
   
 class Subscription_Bill(models.Model):
   email = models.ForeignKey(
@@ -62,4 +62,4 @@ class Subscription_Bill(models.Model):
   class Meta:
     unique_together = (("email","app_id"),)
   def __str__(self):
-    return str(self.app_id) + "(" + self.email + ")"
+    return str(self.app_id) + "(" + str(self.email) + ")"
