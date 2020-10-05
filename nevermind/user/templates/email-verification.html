@@ -14,9 +14,36 @@
         position: relative;
         font-family: GmarketSansBold, sans-serif;
       }
+      .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .etc {
+        margin-top: 3rem;
+        font-size: small;
+        color: #555555;
+        border-top: 1.5px solid #555555;
+      }
     </style>
   </head>
   <body>
-    <h2>Nevermind 이메일 인증</h2>
+    <div class="container">
+      <h1>Nevermind 이메일 인증</h1>
+      <p>이메일 인증번호 입력란에 다음과 같이 입력해주시기 바랍니다:</p>
+      <h2>{{ authnum }}</h2>
+      <ul class="etc">
+        <li>
+          <p>본 메일은 Nevermind 회원가입 이메일 인증을 위해 발송되었습니다.</p>
+        </li>
+        <li><p>이 이메일 주소로 답장을 보내지 마십시오.</p></li>
+        <li>
+          <p>
+            만일 Nevermind 사이트에서 이메일 인증을 시도하지 않으신 경우
+            무시하시기 바랍니다.
+          </p>
+        </li>
+      </ul>
+    </div>
   </body>
 </html>
