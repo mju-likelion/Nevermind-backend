@@ -132,11 +132,15 @@ def get(req):
       subscription_bill = Subscription_Bill.objects.get(
         email = session.email, app_id = sub_info.app_id
       )
+      sub_type_index = sub_info.SubscriptionTypes.values.index(
+        sub_info.sub_type
+      )
       sub_info_json = {
         'app_id': app.app_id,
         'app_name': unquote(app.app_name),
         'app_img_url': app.app_img_url,
         'sub_type': sub_info.sub_type,
+        'sub_type_label': sub_info.SubscriptionTypes.labels[sub_type_index],
         'bill': sub_info.bill,
         'startdate': sub_info.startdate,
         'enddate': sub_info.enddate,
