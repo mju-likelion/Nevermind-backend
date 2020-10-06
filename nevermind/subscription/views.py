@@ -15,6 +15,24 @@ APP_LIST_URL = APIConfig['APP_LIST_URL']
 def timestamp_to_date(js_timestamp):
   return datetime.datetime.fromtimestamp(int(js_timestamp) / 1000).date()
 
+def calc_subscription_bill(sub_type, bill):
+  bill_types = {
+    'W': [ 'week_bill', { 'M': 4, 'Y': 52 } ],
+    'M': [ 'month_bill', { 'Y': 12 } ],
+    'Y': [ 'year_bill', {} ],
+  }
+  bills = {
+    'week_bill': 0,
+    'month_bill': 0,
+    'year_bill': 0,
+  }
+  if sub_type == 'L':
+    return bills
+  bills[bill_types[sub_type][0]] = bill
+  for k, v in bill_types[sub_type][1].items():
+    bills[bill_types[k][0]] = bill * v
+  return bills
+
 
 @csrf_exempt
 def add(req):
@@ -56,7 +74,7 @@ def add(req):
       email = user.email, app_id = app.app_id
     )
     resobj['error_msg'] = 'Already subscribed'
-    return JsonResponse(resobj)
+    return JsonResponse(resobj) 
   except Subscription.DoesNotExist:
     subscription = Subscription()
     subscription.app_id = app
@@ -81,22 +99,13 @@ def add(req):
     subscription_bill = Subscription_Bill()
     subscription_bill.app_id = app
     subscription_bill.email = user
-    if subscription.sub_type == 'W':
-      subscription_bill.week_bill = subscription.bill
-      subscription_bill.month_bill = subscription.bill * 4
-      subscription_bill.year_bill = subscription.bill * 52
-    elif subscription.sub_type == 'M':
-      subscription_bill.week_bill = 0
-      subscription_bill.month_bill = subscription.bill
-      subscription_bill.year_bill = subscription.bill * 12
-    elif subscription.sub_type == 'Y':
-      subscription_bill.week_bill = 0
-      subscription_bill.month_bill = 0
-      subscription_bill.year_bill = subscription.bill
-    else:
-      subscription_bill.week_bill = 0
-      subscription_bill.month_bill = 0
-      subscription_bill.year_bill = 0
+    sub_bills = calc_subscription_bill(
+      reqobj['sub_type'][0:1].upper(),
+      int(reqobj['bill'].replace(',', ''))
+    )
+    subscription_bill.week_bill = sub_bills['week_bill']
+    subscription_bill.month_bill = sub_bills['month_bill']
+    subscription_bill.year_bill = sub_bills['year_bill']
     subscription_bill.save()
 
   resobj['is_add'] = True
@@ -159,8 +168,52 @@ def get(req):
 
 @csrf_exempt
 def update(req):
-  #
-  return JsonResponse({})
+  reqobj = {
+    'session_id': req.POST.get('session_id'),
+    'app_id': req.POST.get('app_id'),
+    'app_name': req.POST.get('app_name'),
+    'app_img_url': req.POST.get('app_img_url'),
+    'sub_type': req.POST.get('sub_type'),
+    'bill': req.POST.get('bill'),
+    'startdate': req.POST.get('startdate'),
+    'enddate': req.POST.get('enddate'),
+  }
+  resobj = {
+    'is_update': False,
+    'error_msg': None,
+  }
+
+  try:
+    session = Session.objects.get(session_id = reqobj['session_id'])
+    app = Application.objects.get(app_id = reqobj['app_id'])
+    subscription = Subscription.objects.get(
+      email = session.email, app_id = app.app_id
+    )
+    subscription_bill = Subscription_Bill.objects.get(
+      email = session.email, app_id = app.app_id
+    )
+    subscription.sub_type = reqobj['sub_type'][0:1].upper()
+    subscription.bill = int(reqobj['bill'].replace(',', ''))
+    subscription.startdate = timestamp_to_date(reqobj['startdate'])
+    subscription.enddate = timestamp_to_date(reqobj['enddate'])
+    sub_bills = calc_subscription_bill(
+      subscription.sub_type,
+      subscription.bill
+    )
+    subscription_bill.week_bill = sub_bills['week_bill']
+    subscription_bill.month_bill = sub_bills['month_bill']
+    subscription_bill.year_bill = sub_bills['year_bill']
+    subscription.save()
+    subscription_bill.save()
+  except Session.DoesNotExist:
+    resobj['error_msg'] = 'Session does not exist'
+    return JsonResponse(resobj)
+  except Application.DoesNotExist:
+    resobj['error_msg'] = 'Application is not subscribed'
+    return JsonResponse(resobj)
+
+  resobj['is_update'] = True
+  return JsonResponse(resobj)
 
 
 @csrf_exempt
