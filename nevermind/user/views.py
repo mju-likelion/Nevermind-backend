@@ -11,6 +11,7 @@ from django.conf import settings
 from argon2 import PasswordHasher
 from urllib.parse import quote, unquote
 from .models import *
+from subscription.models import *
 import json, random, string
 
 
@@ -49,6 +50,36 @@ def issession(req):
       return JsonResponse(resobj)
   else:
     resobj['error_msg'] = 'Not POST method'
+  return JsonResponse(resobj)
+
+@csrf_exempt
+def getprofile(req):
+  reqobj = {
+    'session_id': req.POST.get('session_id'),
+  }
+  resobj = {
+    'is_getprofile': False,
+    'error_msg': None,
+    'username': None,
+    'email': None,
+    'cellphone': None,
+  }
+
+  try:
+    session = Session.objects.get(
+      session_id = reqobj['session_id']
+    )
+    user = User.objects.get(
+      email = session.email
+    )
+    resobj['username'] = unquote(user.username)
+    resobj['email'] = user.email
+    resobj['cellphone'] = user.cellphone
+  except Session.DoesNotExist:
+    resobj['error_msg'] = 'Session does not exist'
+    return JsonResponse(resobj)
+
+  resobj['is_getprofile'] = True
   return JsonResponse(resobj)
 
 @csrf_exempt
@@ -282,8 +313,15 @@ def unregister(req):
       session = Session.objects.get(
         session_id = reqobj['session_id']
       )
+      Subscription.objects.filter(
+        email = session.email
+      ).delete()
+      Subscription_Bill.objects.filter(
+        email = session.email
+      ).delete()
     except Session.DoesNotExist:
       session = None
+    
     if session is not None:
       try:
         user = User.objects.get(email = session.email)
